@@ -97,7 +97,7 @@ The Hub UI strictly adheres to `DESIGN.md`:
    ```
 2. Double-click `run-hub.bat` or run:
    ```bash
-   npm start
+   .\run-hub.bat
    ```
 3. The interface opens at `http://127.0.0.1:4242`.
 4. Click **Deploy Suite** to register the plugin into your active `.gemini` directory.
