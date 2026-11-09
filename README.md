@@ -1,6 +1,11 @@
-# Red Gravity
+<p align="center">
+  <img src="assets/banner.jpg" alt="Red Gravity - For Pentesters and Red Teamers" width="100%">
+</p>
 
-Universal Antigravity 2.0 orchestration suite, autonomous subagent matrix, and desktop control interface.
+<p align="center">
+  <b>red-gravity</b> — <i>for pentesters and red teamers</i><br>
+  <code>// EXPLORE / ANALYZE / PENTEST / RED TEAM</code>
+</p>
 
 ---
 
@@ -134,3 +139,4 @@ Red Gravity supports three runtime reasoning postures:
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+

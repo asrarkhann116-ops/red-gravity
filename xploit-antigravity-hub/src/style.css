@@ -9,9 +9,14 @@
   --bg-elevated: #121216;
   --bg-subtle: #18181c;
   
+  --accent-red: #ff2222;
+  --accent-red-hover: #ff3b3b;
+  --accent-red-subtle: rgba(255, 34, 34, 0.12);
+  --border-red: rgba(255, 34, 34, 0.35);
+
   --border-hairline: rgba(255, 255, 255, 0.08);
   --border-active: rgba(255, 255, 255, 0.24);
-  --border-focus: #ffffff;
+  --border-focus: var(--accent-red);
   
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
@@ -72,8 +77,9 @@ body {
 .brand-monogram {
   width: 38px;
   height: 38px;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--accent-red-subtle);
+  color: var(--accent-red);
+  border: 1px solid var(--border-red);
   font-weight: 800;
   font-size: 1.15rem;
   border-radius: var(--radius-btn);
@@ -89,6 +95,22 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.red-text {
+  color: var(--accent-red);
+}
+
+.brand-slash-tag {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--accent-red);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  background: var(--accent-red-subtle);
+  border: 1px solid var(--border-red);
+  border-radius: var(--radius-tag);
 }
 
 .version-tag {
@@ -176,12 +198,14 @@ body {
 }
 
 .btn-primary {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--accent-red);
+  color: #ffffff;
+  border-color: var(--accent-red);
 }
 
 .btn-primary:hover {
-  background-color: #e4e4e7;
+  background-color: var(--accent-red-hover);
+  border-color: var(--accent-red-hover);
 }
 
 .btn-secondary {
@@ -283,8 +307,8 @@ body {
 }
 
 .profile-card.active {
-  border-color: #ffffff;
-  background-color: var(--bg-elevated);
+  border-color: var(--border-red);
+  background-color: rgba(255, 34, 34, 0.04);
 }
 
 .profile-header {
@@ -310,9 +334,9 @@ body {
 }
 
 .profile-card.active .profile-badge {
-  background-color: #ffffff;
-  color: #000000;
-  border-color: #ffffff;
+  background-color: var(--accent-red);
+  color: #ffffff;
+  border-color: var(--accent-red);
 }
 
 .profile-desc {
@@ -384,9 +408,9 @@ body {
 }
 
 .tab-btn.active {
-  background-color: #ffffff;
-  color: #000000;
-  border-color: #ffffff;
+  background-color: var(--accent-red);
+  color: #ffffff;
+  border-color: var(--accent-red);
 }
 
 .search-bar {
