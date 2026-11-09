@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# OS & Temp
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+
+# Distribution Archives
+*.zip
+*.rar
+*.tar.gz
+
+# Local IDE & Runtime States
+.vscode/
+.idea/
+*.swp
+active_profile.json

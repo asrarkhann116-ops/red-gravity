@@ -1,0 +1,13 @@
+{
+  "name": "xploit-antigravity-hub",
+  "version": "2.0.0",
+  "description": "Universal Antigravity Plugin Orchestrator and Operational Matrix Hub",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "hub": "start run-hub.bat"
+  },
+  "author": "Xploit Hub",
+  "license": "MIT"
+}
+

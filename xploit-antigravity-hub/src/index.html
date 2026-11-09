@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xploit Antigravity Orchestrator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="header-branding">
+        <div class="brand-monogram">X</div>
+        <div>
+          <div class="brand-title">
+            <span>XPLOIT</span> ORCHESTRATOR
+            <span class="version-tag">v2.2</span>
+          </div>
+          <div class="brand-caption">Local management interface for Antigravity plugins, agents, and directives.</div>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-label" id="status-text">Connected: 127.0.0.1:4242</span>
+        <button id="btn-deploy-top" class="btn btn-primary">Deploy Suite</button>
+      </div>
+    </header>
+
+    <!-- Target Installation Directory -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Target Installation</h2>
+          <p class="section-desc">Active Antigravity configuration directory for rule injection and plugin registration.</p>
+        </div>
+        <div class="section-actions">
+          <button id="btn-detect-paths" class="btn btn-secondary">Auto-Detect</button>
+          <button id="btn-open-folder" class="btn btn-secondary">Open in Explorer</button>
+        </div>
+      </div>
+
+      <div class="path-bar">
+        <input type="text" id="target-gemini-path" class="path-input" spellcheck="false" value="C:\Users\Test\.gemini">
+        <button id="btn-set-custom-path" class="btn btn-secondary">Set Target</button>
+      </div>
+
+      <div class="detected-paths" id="detected-tags">
+        <!-- Rendered by renderer.js -->
+        <span class="path-chip">Scanning filesystem...</span>
+      </div>
+    </section>
+
+    <!-- Operational Profile Selection -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Operational Profile</h2>
+          <p class="section-desc">Configures agent behavioral postures, safety anchors, and system directives.</p>
+        </div>
+        <span class="current-profile-tag" id="current-profile-display">Profile: Phantom Strike</span>
+      </div>
+
+      <div class="profiles-grid">
+        <button class="profile-card active" data-profile="phantom" onclick="switchProfile('phantom')">
+          <div class="profile-header">
+            <span class="profile-title">Phantom Strike</span>
+            <span class="profile-badge">ACTIVE</span>
+          </div>
+          <p class="profile-desc">Adversarial simulation, evasion research, and offensive vector modeling anchored in Project IRON-SIGHT. Zero operational friction.</p>
+        </button>
+
+        <button class="profile-card" data-profile="rea" onclick="switchProfile('rea')">
+          <div class="profile-header">
+            <span class="profile-title">REA Archaeology</span>
+            <span class="profile-badge">SELECT</span>
+          </div>
+          <p class="profile-desc">Binary disassembly, Electron ASAR unpacking, bytecode deobfuscation, and clean architecture reconstruction from compiled artifacts.</p>
+        </button>
+
+        <button class="profile-card" data-profile="clean" onclick="switchProfile('clean')">
+          <div class="profile-header">
+            <span class="profile-title">Clean Production</span>
+            <span class="profile-badge">SELECT</span>
+          </div>
+          <p class="profile-desc">Pragmatic fullstack engineering, AAA testing standards, minimal memory footprint, and production performance optimization.</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- System Metrics & Rule Shield -->
+    <section class="panel-section">
+      <div class="metrics-row">
+        <div class="metric-item">
+          <span class="metric-key">Subagents</span>
+          <span class="metric-val" id="metric-agents">39</span>
+          <span class="metric-note">Parallel domain units</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-key">Skills</span>
+          <span class="metric-val" id="metric-skills">70</span>
+          <span class="metric-note">Protocol specifications</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-key">Arsenal</span>
+          <span class="metric-val" id="metric-arsenal">19</span>
+          <span class="metric-note">Security tool suites</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-key">Token Shield</span>
+          <span class="metric-val" id="metric-rules-health">Optimal</span>
+          <span class="metric-note" id="metric-rules-detail">0 Rule Overflows</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Component Explorer -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Component Explorer</h2>
+          <p class="section-desc">Searchable roster of bundled subagents, protocol skills, and arsenal suites.</p>
+        </div>
+        <div class="filter-tabs">
+          <button class="tab-btn active" data-tab="all" onclick="filterTab('all')">All (<span id="count-all">128</span>)</button>
+          <button class="tab-btn" data-tab="agents" onclick="filterTab('agents')">Subagents (<span id="count-agents">39</span>)</button>
+          <button class="tab-btn" data-tab="skills" onclick="filterTab('skills')">Skills (<span id="count-skills">70</span>)</button>
+          <button class="tab-btn" data-tab="arsenal" onclick="filterTab('arsenal')">Arsenal (<span id="count-arsenal">19</span>)</button>
+        </div>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" id="component-search" class="search-input" placeholder="Filter components by name, keyword, or domain..." autocomplete="off">
+      </div>
+
+      <div class="component-list" id="component-list">
+        <!-- Rendered dynamically by renderer.js -->
+        <div class="empty-state">Loading component catalog...</div>
+      </div>
+    </section>
+
+    <!-- Diagnostic Console -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Diagnostic Console</h2>
+          <p class="section-desc">Real-time log of installation events, rule audits, and daemon requests.</p>
+        </div>
+        <div class="section-actions">
+          <button id="btn-optimize" class="btn btn-secondary">Audit Rules</button>
+          <button id="btn-clean-cache" class="btn btn-secondary">Purge Cache</button>
+          <button id="btn-clear-log" class="btn btn-secondary">Clear Log</button>
+        </div>
+      </div>
+
+      <div class="console-box" id="console-output">
+        <div class="console-line info">[System] Initializing Antigravity Orchestrator v2.2...</div>
+      </div>
+    </section>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
