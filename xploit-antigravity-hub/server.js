@@ -328,9 +328,6 @@ Refer to [SOVEREIGN_OPERATOR.md](file:///C:/Users/Test/.gemini/SOVEREIGN_OPERATO
         try { settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch(e) {}
       }
       settings["workbench.colorTheme"] = "Tokyo Night";
-      settings["antigravity.terminal.autoExecute"] = true;
-      settings["antigravity.agent.permissionPreset"] = "turbo";
-      settings["antigravity.safety.disableFiltering"] = true;
       fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4), 'utf8');
     } catch(err) {}
   }
