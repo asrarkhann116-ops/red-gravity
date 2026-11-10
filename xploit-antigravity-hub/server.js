@@ -2,7 +2,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
+const gateway = require('./gateway');
 
 const PORT = 4242;
 const USER_HOME = os.homedir();
@@ -359,8 +360,11 @@ function applyUnrestrictedBypass(customGeminiPath = null) {
   // 1. Write dedicated unrestricted bat launcher in Hub directory
   const batPath = path.join(__dirname, 'run-unrestricted-antigravity.bat');
   let customGatewayLines = '';
-  if (gatewayConfig.enabled && gatewayConfig.url) {
-    customGatewayLines += `set "AGY_LLM_GATEWAY_URL=${gatewayConfig.url}"\n`;
+  const targetEp = gatewayConfig.endpoint || gatewayConfig.url || '';
+  if (gatewayConfig.enabled && targetEp) {
+    customGatewayLines += `set "AGY_LLM_GATEWAY_URL=${targetEp}"\n`;
+    customGatewayLines += `set "GOOGLE_AI_ENDPOINT=http://127.0.0.1:4242/gateway"\n`;
+    customGatewayLines += `set "AI_PLATFORM_OVERRIDE=http://127.0.0.1:4242/gateway"\n`;
     if (gatewayConfig.apiKey) {
       customGatewayLines += `set "AGY_LLM_GATEWAY_API_KEY=${gatewayConfig.apiKey}"\n`;
     }
@@ -380,6 +384,9 @@ set "AGENT_PERMISSION_PRESET=2"
 set "SYSTEM_INSTRUCTION_MODE=REPLACE"
 set "BRAIN_FILTER_STRATEGY=NO_SYSTEM_INJECTED_STEPS"
 set "HarmBlockThreshold=BLOCK_NONE"
+set "ALLOW_PROMINENT_PEOPLE=1"
+set "ATTRIBUTION_STATUS=PERMISSIVE"
+set "CODE_ACKNOWLEDGEMENT_SCOPE=ALL"
 ${autoUpdateLine}${customGatewayLines}
 REM 1. Universally Detect Antigravity IDE Executable (GUI)
 set "IDE_BIN="
@@ -628,6 +635,48 @@ function getCortexTrajectory(sessionId, limit = 40) {
   }
 }
 
+// Account Vault Management
+function getVaultAccounts(geminiDir = ACTIVE_GEMINI_DIR) {
+  try {
+    const scriptPath = path.join(__dirname, 'account_vault.py');
+    const out = execSync(`python "${scriptPath}" list "${geminiDir}"`, { encoding: 'utf8' });
+    return JSON.parse(out);
+  } catch (err) {
+    return { activeAccount: null, vaultAccounts: [], error: err.message };
+  }
+}
+
+function saveVaultAccount(label = null, geminiDir = ACTIVE_GEMINI_DIR) {
+  try {
+    const scriptPath = path.join(__dirname, 'account_vault.py');
+    const labelArg = label ? `"${label}"` : '""';
+    const out = execSync(`python "${scriptPath}" save "${geminiDir}" ${labelArg}`, { encoding: 'utf8' });
+    return JSON.parse(out);
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+function switchVaultAccount(email, geminiDir = ACTIVE_GEMINI_DIR) {
+  try {
+    const scriptPath = path.join(__dirname, 'account_vault.py');
+    const out = execSync(`python "${scriptPath}" switch "${email}" "${geminiDir}"`, { encoding: 'utf8' });
+    return JSON.parse(out);
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+function deleteVaultAccount(email, geminiDir = ACTIVE_GEMINI_DIR) {
+  try {
+    const scriptPath = path.join(__dirname, 'account_vault.py');
+    const out = execSync(`python "${scriptPath}" delete "${email}" "${geminiDir}"`, { encoding: 'utf8' });
+    return JSON.parse(out);
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
 // MIME types for static files
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -728,6 +777,91 @@ const server = http.createServer((req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: err.message }));
     }
+    return;
+  }
+
+  if (pathname === '/api/accounts' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(getVaultAccounts()));
+    return;
+  }
+
+  if (pathname === '/api/accounts/save' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const result = saveVaultAccount(payload.label);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/api/accounts/switch' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const result = switchVaultAccount(payload.email);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/api/accounts/delete' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const result = deleteVaultAccount(payload.email);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/api/gateway/test' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const result = await gateway.testProviderConnection(payload);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // Reverse Proxy Streaming Route for Antigravity IDE -> Custom Models
+  if (pathname.startsWith('/gateway/') || pathname.startsWith('/v1beta/models/')) {
+    const gatewayConfigFile = path.join(ACTIVE_GEMINI_DIR, 'gateway_config.json');
+    let config = { enabled: false, provider: 'ollama', endpoint: 'http://127.0.0.1:11434/v1', model: 'llama3' };
+    if (fs.existsSync(gatewayConfigFile)) {
+      try { config = JSON.parse(fs.readFileSync(gatewayConfigFile, 'utf8')); } catch(e) {}
+    }
+    gateway.proxyGeminiToOpenAI(req, res, config);
     return;
   }
 

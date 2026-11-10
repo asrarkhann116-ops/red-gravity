@@ -122,31 +122,60 @@
       </div>
     </section>
 
+    <!-- Account Vault & Multi-Account Switcher -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title"><span class="red-text">Account</span> Vault & 1-Click Profile Switcher</h2>
+          <p class="section-desc">Instantly switch between Google accounts without browser logins or OTP prompts. Tokens auto-sync on refresh.</p>
+        </div>
+        <div class="section-actions">
+          <span id="active-account-badge" style="font-family: var(--font-mono); font-size: 0.68rem; padding: 4px 8px; background: rgba(0, 255, 120, 0.1); border: 1px solid rgba(0, 255, 120, 0.3); border-radius: var(--radius-tag); color: #00ff78;">● Active: Detecting...</span>
+          <button id="btn-save-current-account" class="btn btn-primary">+ Save Current Account</button>
+        </div>
+      </div>
+
+      <div id="account-vault-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 10px;">
+        <div class="empty-state">Loading accounts vault...</div>
+      </div>
+    </section>
+
     <!-- Universal Gateway & Runtime Freeze -->
     <section class="panel-section">
       <div class="section-header">
         <div>
           <h2 class="section-title"><span class="red-text">Universal</span> Model Gateway & Runtime Freeze</h2>
-          <p class="section-desc">Redirect Antigravity traffic to any custom model (Ollama, vLLM, OpenRouter) and freeze auto-updates.</p>
+          <p class="section-desc">Redirect Antigravity traffic to any custom model (Local Ollama, DeepSeek-R1, OpenRouter) and freeze auto-updates.</p>
         </div>
         <div class="section-actions">
+          <button id="btn-test-gateway" class="btn btn-secondary">Test Connection</button>
           <span id="freeze-status-badge" style="font-family: var(--font-mono); font-size: 0.65rem; padding: 4px 8px; background: rgba(255, 34, 34, 0.12); border: 1px solid rgba(255, 34, 34, 0.3); border-radius: var(--radius-tag); color: #ff6666;">● Updates: FROZEN</span>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 10px; margin-bottom: 10px;">
-        <input type="text" id="gateway-url" class="path-input" placeholder="Gateway URL (e.g. http://127.0.0.1:11434/v1 or https://openrouter.ai/api/v1)" spellcheck="false">
-        <input type="password" id="gateway-key" class="path-input" placeholder="API Key (optional for local Ollama)" spellcheck="false">
-        <button id="btn-save-gateway" class="btn btn-primary">Save & Bind</button>
+      <div style="display: grid; grid-template-columns: 1.2fr 1.8fr 1.2fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <select id="gateway-provider" class="cortex-select" style="width: 100%;">
+          <option value="ollama">Local Ollama</option>
+          <option value="deepseek">DeepSeek API</option>
+          <option value="openrouter">OpenRouter API</option>
+          <option value="custom">Custom Endpoint</option>
+        </select>
+        <input type="text" id="gateway-url" class="path-input" placeholder="Gateway URL (http://127.0.0.1:11434/v1)" spellcheck="false">
+        <input type="text" id="gateway-model" class="path-input" placeholder="Model (e.g. deepseek-r1:32b)" spellcheck="false">
+        <input type="password" id="gateway-key" class="path-input" placeholder="API Key" spellcheck="false">
       </div>
-      <div style="display: flex; gap: 16px; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary);">
-        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-          <input type="checkbox" id="chk-gateway-enable" style="accent-color: var(--accent-red);"> Enable Universal Gateway Redirection
-        </label>
-        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-          <input type="checkbox" id="chk-update-freeze" checked style="accent-color: var(--accent-red);"> Freeze Auto-Updates (AGY_CLI_DISABLE_AUTO_UPDATE=1)
-        </label>
+      <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary);">
+        <div style="display: flex; gap: 16px; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="chk-gateway-enable" style="accent-color: var(--accent-red);"> Route IDE Requests to Custom Model
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="chk-update-freeze" checked style="accent-color: var(--accent-red);"> Freeze Auto-Updates (AGY_CLI_DISABLE_AUTO_UPDATE=1)
+          </label>
+        </div>
+        <button id="btn-save-gateway" class="btn btn-primary" style="padding: 6px 14px;">Save & Bind Gateway</button>
       </div>
+      <div id="gateway-test-result" style="margin-top: 8px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-secondary); display: none;"></div>
     </section>
 
     <!-- Component Explorer -->

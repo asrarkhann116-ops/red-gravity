@@ -1,8 +1,8 @@
 {
   "name": "xploit-core",
   "displayName": "Xploit Core Suite",
-  "version": "2.5.0",
-  "description": "Massive Red Team Simulation, Binary Reverse Engineering, Swarm Orchestration, Anti-Slop Human Craftsmanship, and Cognitive Architecture suite with 39 Agents and 70 Skills.",
+  "version": "2.8.0",
+  "description": "Massive Red Team Simulation, Binary Reverse Engineering, Swarm Orchestration, Universal Model Gateway (DeepSeek/Ollama/OpenRouter), 1-Click Multi-Account Vault, and 6-Point Unconstrained Runtime suite with 39 Agents and 70 Skills.",
   "logo": "assets/logo.svg",
   "suggestedPrompts": [
     "/xploit-status verify active operational matrix",
