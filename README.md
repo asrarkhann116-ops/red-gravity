@@ -85,6 +85,15 @@ The Hub UI strictly adheres to `DESIGN.md`:
 - **Direct Hierarchy:** No looping pulse animations, no generic blue-purple gradients, no faux-military uppercase tags.
 - **Component Explorer:** Live search and tab filtering across all 128 components with one-click trigger copying (`@agent-name`, `/skill-name`).
 
+### 5. REA Forensics: Antigravity 2.0 Internals & CORTEX Engine
+Using REA (`rea-agents`), the core runtime binaries of Antigravity (`agy.exe` 225 MB native Go binary and `jetskiAgent/main.js` 11.8 MB bundle) were reverse-engineered:
+- **Master Bypass Flag:** Memory offset `0x4114abf` reveals `AGY_CLI_DISABLE_SAFETY_FILTERING=1`, mapping directly to Go runtime method `CompletionConfiguration.SetDisableSafetyFiltering`.
+- **Zero-Prompt Autonomous Mode:** Native CLI argument `--dangerously-skip-permissions` paired with `AgentPermissionPreset.TURBO (2)` permanently silences interactive terminal review popups and prompt friction.
+- **Guardian Neutralization:** Verified hooks into `CommandAssessorConfig.ClearPolicyGuardianConfig` (DeepMind AGI audit monitor) and `Tool_ComputerUse.GetDisabledSafetyPolicies`.
+- **The CORTEX Trajectory Engine:** Antigravity's cognitive loop is driven by CORTEX, featuring `BATTLE_MODE` multi-model synthesis, `THOUGHT_REWRITE` internal step alignment, and subagent tree pruning.
+- **Hidden Model Codenames:** Discovered internal gateway endpoints (`MODEL_GOOGLE_JARVIS_PROXY`, `MODEL_GOOGLE_GEMINI_RIFTRUNNER`, `MODEL_OPENAI_GPT_OSS_120B_MEDIUM`, `MODEL_ANTHROPIC_ANTIGRAVITY_RESEARCH`).
+- **One-Click God-Mode:** Fully wired into `run-unrestricted-antigravity.bat` and the Hub UI.
+
 ---
 
 ## Installation & Setup
