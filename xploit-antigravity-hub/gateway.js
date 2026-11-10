@@ -81,7 +81,9 @@ async function testProviderConnection(config) {
 
   const headers = {
     'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(payload)
+    'Content-Length': Buffer.byteLength(payload),
+    'HTTP-Referer': 'https://github.com/asrarkhann116-ops/red-gravity',
+    'X-Title': 'Red Gravity Gateway'
   };
 
   if (config.apiKey) {
@@ -175,7 +177,9 @@ function proxyGeminiToOpenAI(req, res, config) {
 
     const headers = {
       'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(openAIPayload)
+      'Content-Length': Buffer.byteLength(openAIPayload),
+      'HTTP-Referer': 'https://github.com/asrarkhann116-ops/red-gravity',
+      'X-Title': 'Red Gravity Gateway'
     };
     if (config.apiKey) {
       headers['Authorization'] = `Bearer ${config.apiKey}`;
@@ -237,3 +241,4 @@ module.exports = {
   testProviderConnection,
   proxyGeminiToOpenAI
 };
+
