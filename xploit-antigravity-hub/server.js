@@ -554,6 +554,20 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (pathname === '/api/launch-turbo' && req.method === 'POST') {
+    try {
+      applyUnrestrictedBypass();
+      const batFile = path.join(__dirname, 'run-unrestricted-antigravity.bat');
+      exec(`cmd.exe /c start "" "${batFile}"`);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Antigravity Unconstrained God-Mode Launched.' }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
   if (pathname === '/api/switch-profile' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);

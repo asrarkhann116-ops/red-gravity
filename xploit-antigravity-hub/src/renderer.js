@@ -344,8 +344,25 @@ async function openFolder() {
   }
 }
 
+async function launchTurbo() {
+  addLog('Launching Antigravity with 6-Point Unconstrained God-Mode...', 'info');
+  try {
+    const res = await fetch(`${API_BASE}/launch-turbo`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      addLog('God-Mode Process Spawned: Zero-Friction & Autonomous Execution Active.', 'success');
+    } else {
+      addLog(`Failed to launch: ${data.error}`, 'error');
+    }
+  } catch (err) {
+    addLog(`Launch error: ${err.message}`, 'error');
+  }
+}
+
 // Bind top-level buttons
 document.getElementById('btn-deploy-top').onclick = deployPlugin;
+const turboBtn = document.getElementById('btn-turbo-launch');
+if (turboBtn) turboBtn.onclick = launchTurbo;
 document.getElementById('btn-detect-paths').onclick = detectPaths;
 document.getElementById('btn-open-folder').onclick = openFolder;
 document.getElementById('btn-optimize').onclick = optimizeRules;
