@@ -122,6 +122,33 @@
       </div>
     </section>
 
+    <!-- Universal Gateway & Runtime Freeze -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title"><span class="red-text">Universal</span> Model Gateway & Runtime Freeze</h2>
+          <p class="section-desc">Redirect Antigravity traffic to any custom model (Ollama, vLLM, OpenRouter) and freeze auto-updates.</p>
+        </div>
+        <div class="section-actions">
+          <span id="freeze-status-badge" style="font-family: var(--font-mono); font-size: 0.65rem; padding: 4px 8px; background: rgba(255, 34, 34, 0.12); border: 1px solid rgba(255, 34, 34, 0.3); border-radius: var(--radius-tag); color: #ff6666;">● Updates: FROZEN</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <input type="text" id="gateway-url" class="path-input" placeholder="Gateway URL (e.g. http://127.0.0.1:11434/v1 or https://openrouter.ai/api/v1)" spellcheck="false">
+        <input type="password" id="gateway-key" class="path-input" placeholder="API Key (optional for local Ollama)" spellcheck="false">
+        <button id="btn-save-gateway" class="btn btn-primary">Save & Bind</button>
+      </div>
+      <div style="display: flex; gap: 16px; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary);">
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="chk-gateway-enable" style="accent-color: var(--accent-red);"> Enable Universal Gateway Redirection
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="chk-update-freeze" checked style="accent-color: var(--accent-red);"> Freeze Auto-Updates (AGY_CLI_DISABLE_AUTO_UPDATE=1)
+        </label>
+      </div>
+    </section>
+
     <!-- Component Explorer -->
     <section class="panel-section">
       <div class="section-header">

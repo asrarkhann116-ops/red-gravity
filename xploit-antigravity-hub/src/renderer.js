@@ -497,8 +497,84 @@ if (btnPruneCortex) {
   };
 }
 
+// ==========================================================================
+// Universal Gateway & Runtime Freeze
+// ==========================================================================
+const gatewayUrlInput = document.getElementById('gateway-url');
+const gatewayKeyInput = document.getElementById('gateway-key');
+const chkGatewayEnable = document.getElementById('chk-gateway-enable');
+const chkUpdateFreeze = document.getElementById('chk-update-freeze');
+const btnSaveGateway = document.getElementById('btn-save-gateway');
+const freezeStatusBadge = document.getElementById('freeze-status-badge');
+
+async function loadGatewayConfig() {
+  try {
+    const res = await fetch(`${API_BASE}/gateway`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (gatewayUrlInput) gatewayUrlInput.value = data.url || '';
+    if (gatewayKeyInput) gatewayKeyInput.value = data.apiKey || '';
+    if (chkGatewayEnable) chkGatewayEnable.checked = Boolean(data.enabled);
+    if (chkUpdateFreeze) chkUpdateFreeze.checked = data.disableAutoUpdate !== false;
+    updateFreezeBadge(data.disableAutoUpdate !== false);
+  } catch(e) {}
+}
+
+function updateFreezeBadge(isFrozen) {
+  if (!freezeStatusBadge) return;
+  if (isFrozen) {
+    freezeStatusBadge.textContent = '● Updates: FROZEN';
+    freezeStatusBadge.style.color = '#ff6666';
+    freezeStatusBadge.style.borderColor = 'rgba(255, 34, 34, 0.3)';
+    freezeStatusBadge.style.background = 'rgba(255, 34, 34, 0.12)';
+  } else {
+    freezeStatusBadge.textContent = '○ Updates: ACTIVE';
+    freezeStatusBadge.style.color = '#888888';
+    freezeStatusBadge.style.borderColor = 'var(--border-hairline)';
+    freezeStatusBadge.style.background = 'var(--bg-surface)';
+  }
+}
+
+async function saveGatewayConfig() {
+  const payload = {
+    enabled: chkGatewayEnable ? chkGatewayEnable.checked : false,
+    url: gatewayUrlInput ? gatewayUrlInput.value.trim() : '',
+    apiKey: gatewayKeyInput ? gatewayKeyInput.value.trim() : '',
+    disableAutoUpdate: chkUpdateFreeze ? chkUpdateFreeze.checked : true
+  };
+
+  addLog('Binding Universal Gateway and Runtime Freeze settings...', 'info');
+  try {
+    const res = await fetch(`${API_BASE}/gateway`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      addLog(data.message, 'success');
+      updateFreezeBadge(payload.disableAutoUpdate);
+      if (payload.enabled) {
+        addLog(`Gateway Active: Traffic routed to ${payload.url}`, 'success');
+      } else {
+        addLog('Gateway Direct: Default Google routing active.', 'info');
+      }
+    }
+  } catch(err) {
+    addLog(`Gateway error: ${err.message}`, 'error');
+  }
+}
+
+if (btnSaveGateway) btnSaveGateway.onclick = saveGatewayConfig;
+if (chkUpdateFreeze) {
+  chkUpdateFreeze.onchange = () => {
+    updateFreezeBadge(chkUpdateFreeze.checked);
+  };
+}
+
 // Initialize
 loadStatus();
 detectPaths();
 loadInventory();
 loadCortexSessions();
+loadGatewayConfig();
