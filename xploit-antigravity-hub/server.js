@@ -470,6 +470,94 @@ function cleanCache() {
   };
 }
 
+// CORTEX Sessions Scanner & Trajectory Inspector
+function getCortexSessions() {
+  const brainDir = path.join(ACTIVE_GEMINI_DIR, 'antigravity', 'brain');
+  if (!fs.existsSync(brainDir)) return [];
+  
+  const entries = fs.readdirSync(brainDir, { withFileTypes: true });
+  const sessions = [];
+  
+  for (const entry of entries) {
+    if (entry.isDirectory() && entry.name.match(/^[a-f0-9-]{36}$/i)) {
+      const sessionPath = path.join(brainDir, entry.name);
+      const transcriptPath = path.join(sessionPath, '.system_generated', 'logs', 'transcript.jsonl');
+      let stepCount = 0;
+      let lastModified = fs.statSync(sessionPath).mtime;
+      let sizeBytes = 0;
+      
+      if (fs.existsSync(transcriptPath)) {
+        try {
+          const stat = fs.statSync(transcriptPath);
+          sizeBytes = stat.size;
+          lastModified = stat.mtime;
+          const content = fs.readFileSync(transcriptPath, 'utf8');
+          const lines = content.split('\n').filter(l => l.trim().length > 0);
+          stepCount = lines.length;
+        } catch(e) {}
+      }
+      
+      sessions.push({
+        id: entry.name,
+        stepCount,
+        sizeBytes,
+        lastModified: lastModified.toISOString()
+      });
+    }
+  }
+  
+  sessions.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+  return sessions;
+}
+
+function getCortexTrajectory(sessionId, limit = 40) {
+  const brainDir = path.join(ACTIVE_GEMINI_DIR, 'antigravity', 'brain');
+  const transcriptPath = path.join(brainDir, sessionId, '.system_generated', 'logs', 'transcript.jsonl');
+  
+  if (!fs.existsSync(transcriptPath)) {
+    return { sessionId, steps: [], totalSteps: 0, estimatedTokens: 0 };
+  }
+  
+  try {
+    const content = fs.readFileSync(transcriptPath, 'utf8');
+    const lines = content.split('\n').filter(l => l.trim().length > 0);
+    const totalSteps = lines.length;
+    const slice = lines.slice(-limit);
+    const steps = [];
+    let totalChars = 0;
+    
+    for (const line of slice) {
+      try {
+        const obj = JSON.parse(line);
+        const tools = (obj.tool_calls || []).map(tc => tc.name || (tc.call && tc.call.name) || 'tool');
+        const text = typeof obj.content === 'string' ? obj.content : JSON.stringify(obj.content || '');
+        totalChars += text.length;
+        
+        steps.push({
+          index: obj.step_index,
+          type: obj.type || 'UNKNOWN',
+          source: obj.source || 'UNKNOWN',
+          timestamp: obj.created_at || null,
+          tools,
+          hasThinking: Boolean(obj.thinking),
+          preview: text.length > 200 ? text.substring(0, 200) + '...' : text,
+          charCount: text.length
+        });
+      } catch(e) {}
+    }
+    
+    return {
+      sessionId,
+      totalSteps,
+      returnedSteps: steps.length,
+      estimatedTokens: Math.round(totalChars / 4),
+      steps
+    };
+  } catch(err) {
+    return { sessionId, steps: [], totalSteps: 0, error: err.message };
+  }
+}
+
 // MIME types for static files
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -510,6 +598,25 @@ const server = http.createServer((req, res) => {
   if (pathname === '/api/detect-paths' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(detectSystemPaths()));
+    return;
+  }
+
+  if (pathname === '/api/cortex/sessions' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(getCortexSessions()));
+    return;
+  }
+
+  if (pathname === '/api/cortex/trajectory' && req.method === 'GET') {
+    const sessionId = parsedUrl.searchParams.get('session');
+    const limit = parseInt(parsedUrl.searchParams.get('limit') || '40', 10);
+    if (!sessionId) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Session ID parameter required.' }));
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(getCortexTrajectory(sessionId, limit)));
     return;
   }
 

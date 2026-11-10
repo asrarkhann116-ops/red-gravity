@@ -147,6 +147,46 @@
       </div>
     </section>
 
+    <!-- CORTEX Live Trajectory & Memory Inspector -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title"><span class="red-text">CORTEX</span> Trajectory & Memory Inspector</h2>
+          <p class="section-desc">Real-time observability into active agent reasoning, step trajectories, subagent forks, and token usage.</p>
+        </div>
+        <div class="section-actions">
+          <select id="cortex-session-select" class="cortex-select">
+            <option value="">Loading sessions...</option>
+          </select>
+          <button id="btn-refresh-trajectory" class="btn btn-secondary">Refresh</button>
+          <button id="btn-prune-cortex" class="btn btn-secondary">Prune Dead Steps</button>
+        </div>
+      </div>
+
+      <div class="cortex-metrics-bar">
+        <div class="cortex-stat">
+          <span class="cortex-stat-label">ACTIVE SESSION</span>
+          <span class="cortex-stat-value" id="cortex-active-id">None</span>
+        </div>
+        <div class="cortex-stat">
+          <span class="cortex-stat-label">TOTAL STEPS</span>
+          <span class="cortex-stat-value" id="cortex-step-count">0</span>
+        </div>
+        <div class="cortex-stat">
+          <span class="cortex-stat-label">EST. TOKENS</span>
+          <span class="cortex-stat-value" id="cortex-token-count">0</span>
+        </div>
+        <div class="cortex-stat">
+          <span class="cortex-stat-label">CORTEX STATUS</span>
+          <span class="cortex-stat-value red-text" id="cortex-status">SYNCHRONIZED</span>
+        </div>
+      </div>
+
+      <div class="trajectory-timeline" id="trajectory-timeline">
+        <div class="empty-state">Select an active session to inspect live trajectory steps...</div>
+      </div>
+    </section>
+
     <!-- Diagnostic Console -->
     <section class="panel-section">
       <div class="section-header">

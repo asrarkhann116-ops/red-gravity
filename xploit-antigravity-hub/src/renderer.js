@@ -372,7 +372,133 @@ document.getElementById('btn-set-custom-path').onclick = () => {
   addLog(`Target path manually set to: ${pathInput.value}`, 'info');
 };
 
+// ==========================================================================
+// CORTEX Live Trajectory & Memory Inspector
+// ==========================================================================
+const cortexSessionSelect = document.getElementById('cortex-session-select');
+const cortexActiveId = document.getElementById('cortex-active-id');
+const cortexStepCount = document.getElementById('cortex-step-count');
+const cortexTokenCount = document.getElementById('cortex-token-count');
+const trajectoryTimeline = document.getElementById('trajectory-timeline');
+const btnRefreshTrajectory = document.getElementById('btn-refresh-trajectory');
+const btnPruneCortex = document.getElementById('btn-prune-cortex');
+
+async function loadCortexSessions() {
+  try {
+    const res = await fetch(`${API_BASE}/cortex/sessions`);
+    if (!res.ok) return;
+    const sessions = await res.json();
+    
+    if (sessions && sessions.length) {
+      cortexSessionSelect.innerHTML = '';
+      sessions.forEach((s, idx) => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        const shortId = s.id.substring(0, 8);
+        const timeStr = new Date(s.lastModified).toLocaleTimeString();
+        opt.textContent = `${idx === 0 ? '● ACTIVE ' : ''}${shortId}... (${s.stepCount} steps, ${timeStr})`;
+        cortexSessionSelect.appendChild(opt);
+      });
+      loadTrajectory(sessions[0].id);
+    } else {
+      cortexSessionSelect.innerHTML = '<option value="">No active sessions found</option>';
+    }
+  } catch(err) {
+    console.error('Failed to load cortex sessions:', err);
+  }
+}
+
+async function loadTrajectory(sessionId) {
+  if (!sessionId) return;
+  cortexActiveId.textContent = sessionId.substring(0, 8) + '...';
+  
+  try {
+    const res = await fetch(`${API_BASE}/cortex/trajectory?session=${encodeURIComponent(sessionId)}&limit=30`);
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    cortexStepCount.textContent = data.totalSteps || 0;
+    cortexTokenCount.textContent = (data.estimatedTokens || 0).toLocaleString();
+    
+    trajectoryTimeline.innerHTML = '';
+    
+    if (data.steps && data.steps.length) {
+      data.steps.reverse().forEach(step => {
+        const card = document.createElement('div');
+        const isPlanner = step.type.includes('PLANNER');
+        const isUser = step.type.includes('USER');
+        card.className = `trajectory-card ${isPlanner ? 'planner' : isUser ? 'user' : 'generic'}`;
+        
+        const header = document.createElement('div');
+        header.className = 'trajectory-header';
+        
+        const badge = document.createElement('span');
+        badge.className = 'trajectory-badge';
+        badge.textContent = `Step #${step.index} // ${step.type}`;
+        
+        const time = document.createElement('span');
+        time.className = 'trajectory-time';
+        time.textContent = step.timestamp ? new Date(step.timestamp).toLocaleTimeString() : '';
+        
+        header.appendChild(badge);
+        header.appendChild(time);
+        card.appendChild(header);
+        
+        if (step.tools && step.tools.length) {
+          const toolsBox = document.createElement('div');
+          toolsBox.className = 'trajectory-tools';
+          step.tools.forEach(t => {
+            const chip = document.createElement('span');
+            chip.className = 'tool-chip';
+            chip.textContent = `Tool: ${t}`;
+            toolsBox.appendChild(chip);
+          });
+          card.appendChild(toolsBox);
+        }
+        
+        if (step.preview && step.preview.trim()) {
+          const preview = document.createElement('div');
+          preview.className = 'trajectory-preview';
+          preview.textContent = step.preview;
+          card.appendChild(preview);
+        }
+        
+        trajectoryTimeline.appendChild(card);
+      });
+    } else {
+      trajectoryTimeline.innerHTML = '<div class="empty-state">No recorded steps in this session trajectory.</div>';
+    }
+  } catch(err) {
+    trajectoryTimeline.innerHTML = `<div class="empty-state">Error fetching trajectory: ${err.message}</div>`;
+  }
+}
+
+if (cortexSessionSelect) {
+  cortexSessionSelect.onchange = (e) => {
+    loadTrajectory(e.target.value);
+  };
+}
+
+if (btnRefreshTrajectory) {
+  btnRefreshTrajectory.onclick = () => {
+    const cur = cortexSessionSelect.value;
+    if (cur) {
+      addLog(`Refreshing CORTEX trajectory for ${cur.substring(0,8)}...`, 'info');
+      loadTrajectory(cur);
+    }
+  };
+}
+
+if (btnPruneCortex) {
+  btnPruneCortex.onclick = async () => {
+    addLog('Executing CORTEX context & dead step pruning...', 'info');
+    await cleanCache();
+    await loadCortexSessions();
+  };
+}
+
 // Initialize
 loadStatus();
 detectPaths();
 loadInventory();
+loadCortexSessions();
